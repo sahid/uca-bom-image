@@ -4,7 +4,7 @@ set -xe
 
 export LANG="en_US.UTF-8"
 export LANGUAGE="en_US:en"
-export LC_ALL="en_US"
+export LC_ALL="C"
 
 # Should be set from ENV
 #TARGET="trusty-mitaka"
