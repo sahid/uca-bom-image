@@ -22,10 +22,12 @@ RUN echo "tzdata tzdata/Areas select Europe" > /tmp/preseed.txt; \
 # Used by mk-sbuilds
 COPY .sbuildrc /root/
 RUN usermod -g sbuild root
+RUN mkdir /root/builds
+RUN mkdir /root/logs
 
 # Unable to build this docker image with enough priv so the mk-build
 # will be done in-fly in jenkins conf with priviledged container..
 #RUN mk-sbuild bionic
 #RUN mk-sbuild xenial
 
-COPY bom.sh /home/ubuntu/workdir/
+COPY bom.sh /root/
