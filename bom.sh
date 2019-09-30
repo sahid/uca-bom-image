@@ -6,14 +6,28 @@ export LANG="en_US.UTF-8"
 export LANGUAGE="en_US:en"
 export LC_ALL="C"
 
-# Should be set from ENV
-#TARGET="trusty-mitaka"
-#OS_SERIES="folsom"
-#TESTING_PPA="ppa:openstack-ubuntu-testing/folsom-stable-testing"
-#ONLY_BUILD=1 t run is dry mode.export 
-# end
+: ${BASE_STAGING_PPA:="ppa:ubuntu-cloud-archive"}
 
-staging_ppa="ppa:ubuntu-cloud-archive/$OS_SERIES-staging"
+if [ -z "$TARGET" ]; then
+  echo "ERROR: TARGET should be defined, e.g. trusty-mitaka."
+  exit 1
+fi
+if [ -z "$OS_SERIES" ]; then
+  echo "ERROR: OS_SERIES should be defined, e.g. mitaka."
+  exit 1
+fi
+if [ -z "$TESTING_PPA" ]; then
+  echo "ERROR: TESTING_PPA should be defined, e.g. ppa:openstack-ubuntu-testing/mitaka."
+  exit 1
+fi
+
+
+if [ $ONLY_BUILD ]
+then
+    echo "Running is dry-mode, only builds will be executed."
+fi
+
+staging_ppa="$BASE_STAGING_PPA/$OS_SERIES-staging"
 packages=($(cloud-archive-outdated-packages -P $OS_SERIES))
 
 for pkg in ${packages[*]}; do
