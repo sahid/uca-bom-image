@@ -6,6 +6,11 @@ export LANG="en_US.UTF-8"
 export LANGUAGE="en_US:en"
 export LC_ALL="C"
 
+
+: ${GPG_PUBLIC_KEYS_IMPORT:="/secrets/pgp-public-keys"}
+: ${GPG_PRIVATE_KEYS_IMPORT:="/secrets/pgp-public-keys"}
+: ${DEBSIGN_KEY:="9935ACDC"}
+
 : ${BASE_STAGING_PPA:="ppa:ubuntu-cloud-archive"}
 
 if [ -z "$TARGET" ]; then
@@ -27,6 +32,13 @@ then
     echo "Running is dry-mode, only builds will be executed."
 fi
 
+
+# Configure the keys.
+gpg --import GPG_PUBLIC_KEYS_IMPORT
+gpg --import GPG_PRIVATE_KEYS_IMPORT
+gpg --list-keys
+
+
 staging_ppa="$BASE_STAGING_PPA/$OS_SERIES-staging"
 packages=($(cloud-archive-outdated-packages -P $OS_SERIES))
 
@@ -35,7 +47,7 @@ for pkg in ${packages[*]}; do
         echo "Autobackport failed, patch may need a refresh"
     }
     DEB_BUILD_OPTIONS=nostrip sbuild-$OS_SERIES -n -A ${pkg}*/*.dsc && {
-        debsign -k9935ACDC ${pkg}*/*_source.changes
+        debsign -k$DEBSIGN_KEY ${pkg}*/*_source.changes
 	if [ -n $ONLY_BUILD ]
 	then
             dput -f $staging_ppa ${pkg}*/*_source.changes
