@@ -11,6 +11,8 @@ export LC_ALL="C"
 : ${GPG_PRIVATE_KEYS_IMPORT:="/secrets/pgp-public-keys"}
 : ${DEBSIGN_KEY:="9935ACDC"}
 
+: ${BLACKLIST:=""}
+
 : ${BASE_STAGING_PPA:="ppa:ubuntu-cloud-archive"}
 
 if [ -z "$TARGET" ]; then
@@ -33,6 +35,17 @@ then
 fi
 
 
+function blacklisted {
+    pkg=$1
+    for bl_pkg in ${BLACKLIST[*]}; do
+        if [ $pkg == $bl_pkg ]; then
+        	return 0
+        fi    	
+    done
+    return 1
+}
+
+
 # Configure the keys.
 gpg --import $GPG_PUBLIC_KEYS_IMPORT
 gpg --import $GPG_PRIVATE_KEYS_IMPORT
@@ -43,6 +56,10 @@ staging_ppa="$BASE_STAGING_PPA/$OS_SERIES-staging"
 packages=($(cloud-archive-outdated-packages -P $OS_SERIES))
 
 for pkg in ${packages[*]}; do
+    if blacklisted $pkg; then
+    	echo "Package $pkg blacklisted, skipping"
+    	continue
+    fi
     cloud-archive-backport -P -r $OS_SERIES -o . $pkg || {
         echo "Autobackport failed, patch may need a refresh"
     }
