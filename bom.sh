@@ -34,8 +34,8 @@ fi
 
 
 # Configure the keys.
-gpg --import GPG_PUBLIC_KEYS_IMPORT
-gpg --import GPG_PRIVATE_KEYS_IMPORT
+gpg --import $GPG_PUBLIC_KEYS_IMPORT
+gpg --import $GPG_PRIVATE_KEYS_IMPORT
 gpg --list-keys
 
 
